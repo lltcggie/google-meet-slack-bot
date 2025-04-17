@@ -1,0 +1,2 @@
+# GoogleMeetEventCreater
+Slackで今すぐ開始するMeet付きのGoogleカレンダーの予定を作成するアプリ
