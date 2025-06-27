@@ -120,8 +120,8 @@ def get_meet_space_id(credentials, conference_id):
          logger.error(f"[Meet API] Unexpected exception during GET {url}: {e}")
          return None, f"Meetスペース情報取得中に予期せぬエラーが発生しました: {e}"
 
-def enable_meet_auto_recording(credentials, space_id):
-    """Meet APIを使用して指定されたSpace IDの自動録画を有効にする"""
+def enable_meet_auto_artifact(credentials, space_id):
+    """Meet APIを使用して指定されたSpace IDの自動録画、自動文字起こし、自動スマートメモを有効にする"""
     if not space_id:
         logger.warning("Space ID is missing, cannot enable auto recording.")
         return False, "MeetスペースIDが不明です"
@@ -133,12 +133,18 @@ def enable_meet_auto_recording(credentials, space_id):
         'Content-Type': 'application/json'
     }
     # updateMaskクエリパラメータで更新対象フィールドを指定
-    params = {'updateMask': 'config.artifactConfig.recordingConfig.autoRecordingGeneration'}
+    params = {'updateMask': 'config.artifactConfig.recordingConfig.autoRecordingGeneration,config.artifactConfig.transcriptionConfig.autoTranscriptionGeneration,config.artifactConfig.smartNotesConfig.autoSmartNotesGeneration'}
     payload = json.dumps({
         "config": {
             "artifactConfig": {
                 "recordingConfig": {
                     "autoRecordingGeneration": "ON"
+                },
+                "transcriptionConfig": {
+                    "autoTranscriptionGeneration": "ON"
+                },
+                "smartNotesConfig": {
+                    "autoSmartNotesGeneration": "ON"
                 }
             }
         }
@@ -432,8 +438,8 @@ def handle_mtg_command(ack, command, client, respond, logger):
         try:
              space_id, space_id_error = get_meet_space_id(credentials, conference_id)
              if space_id:
-                 # enable_meet_auto_recording は成功/失敗(bool)とエラーメッセージを返す
-                 recording_configured, error_msg_on_fail = enable_meet_auto_recording(credentials, space_id)
+                 # enable_meet_auto_artifact は成功/失敗(bool)とエラーメッセージを返す
+                 recording_configured, error_msg_on_fail = enable_meet_auto_artifact(credentials, space_id)
                  if not recording_configured:
                      # 失敗した場合のみエラーメッセージを記録
                      recording_error_msg = error_msg_on_fail
